@@ -1,0 +1,89 @@
+-- Creazione tabella dipendente
+CREATE TABLE Dipendente(
+    id INT PRIMARY KEY, 
+    nome VARCHAR(20), 
+    cognome VARCHAR(20), 
+    email VARCHAR(255), 
+    numerotelefono VARCHAR (10), 
+    data_assunzione DATE, 
+    id_lavoro INT, 
+    salario INT, 
+    id_manager INT, 
+    id_dipartimento INT);
+
+
+-- Inseriamo dati nella tabella dipendente
+INSERT INTO Dipendente (id, nome, cognome, email, numerotelefono, data_assunzione, id_lavoro, salario, id_manager, id_dipartimento)VALUES 
+(1,'Francesco','Bianchi','Francesco.Bianchi@azienda.it', '326889127','2017-08-12', 2,1500,9,110),
+(2,'Mario','Rossi','MArio.Rossi@azienda.it', '316329187','2021-11-08', 3,1200,9,120),
+(3,'Giorgio','Azzurri','Giorgio.Azzurri@azienda.it', '338176222','2018-01-01', 4,1500,9,130),
+(4,'Marco','Fiera','Marco.Fiera@azienda.it', '301198771','2010-10-12', 5,1800,9,140),
+(5,'Federico','Verdi','Federico.Verdi@azienda.it', '399182663','2023-08-09', 6,1740,9,150),
+(6,'Giacomo','Romeo','Giacomo.Romeo@azienda.it', '377162994','2016-04-10', 7,1300,9,170),
+(7,'Maria','Conti','Maria.Conti@azienda.it', '331870028','2021-03-28', 8,1900,9,180),
+(8,'Angela','Marchi','Angela.Marchi@azienda.it', '355129002','2020-02-24', 9,2300,9,190),
+(9,'Franca','Barbero','Franca.Barbero@azienda.it', '398172792','2009-03-15', 1,6700,9,160),
+(10,'Marianna','Laghi','Marianna.Laghi@azienda.it', '356276424','2021-02-01',10,2200,9,200),
+(11,'Giuseppe','Moro','Giuseppe.moro@azienda.it', '379642421','2021-03-02',2,988,1,110),
+(12,'Giovanni','Iota','Giovanni.iota@azienda.it', '342679442','2021-04-03',3,1098,2,120),
+(13,'Adelaide','Alpha','Adelaide.alpha@azienda.it', '346724724','2021-05-04',4,1231,3,130),
+(14,'Saturno','Beta','Saturno.beta@azienda.it', '342247234','2021-06-05',5,1751,4,140),
+(15,'Federica','Gamma','Federica gamma@azienda.it', '379424278','2021-07-06',6,1178,5,150),
+(16,'Sofia','Hotel','Sofia.hotel@azienda.it', '346724428','2021-08-07',1,1340,5,150),
+(17,'Nevio','Eco','Nevio.eco@azienda.it', '344284274','2021-09-08',7,1145,6,170),
+(18,'Oreste','India','Oreste.india@azienda.it', '313434424','2021-12-09',8,1298,7,180),
+(19,'Clemente','Papa','clemente.papa@azienda.it', '347284242','2021-11-13',8,1000,7,180),
+(20,'Giuseppina','Galli','giuseppina.Galli@azienda.it', '314781973','2021-10-22',9,1762,9,190),
+(21,'Carlo','Conti','carlo.conti@azienda.it', '356172811','2020-05-22',10,2199,10,200);
+
+/* l'id_manager è dunque il codice id del manager a cui è affiliato il lavoratore,
+mentre tutti i manager sono collegati con il manager di amministrazione
+*/
+
+-- Creazione tabella dipartimento
+CREATE TABLE Dipartimento (
+    id_dipartimento INT PRIMARY KEY,
+    nome_dip VARCHAR(40),
+    id_manager INT,
+    id_location VARCHAR(20)
+);
+
+-- Inseriamo dati nella tabella dipartimento
+INSERT INTO Dipartimento (id_dipartimento, nome_dip, id_manager, id_location) VALUES
+(110, 'Macchine',2,'Bologna'),
+(120, 'Nucleare',3,'Milano'),
+(130, 'Motoristica',4,'Bologna'),
+(140, 'Idraulica',5,'Firenze'),
+(150, 'Meccanica',6,'Firenze'),
+(160, 'Amministrazione',1,'Catania'),
+(170, 'Elettronica',7,'Napoli'),
+(180, 'Metallurgia',8,'Roma'),
+(190, 'Galleria vento',9,'Brescia'),
+(200, 'Energetico',10,'Fidenza');
+
+-- Aggiungo Foreign Key
+ALTER TABLE Dipendente ADD FOREIGN KEY (id_dipartimento) REFERENCES Dipartimento(id_dipartimento);
+ALTER TABLE Dipartimento ADD FOREIGN KEY (id_manager) REFERENCES Dipendente(id);
+
+
+-- 1)Trovo tutti i manager, ovvero restringo a chi ha come manager il codice 9.
+SELECT DATE_FORMAT(data_assunzione,'%m/%d/%Y') AS assunzione, id 
+    FROM Dipendente
+      WHERE (SELECT id_dipartimento 
+            FROM Dipartimento 
+            WHERE nome_dip ='Amministrazione')=id_dipartimento;
+
+-- 2) Trovo i nomi e cognomi assunti nel mese di giugno
+SELECT nome, cognome FROM Dipendente WHERE MONTH(data_assunzione) = 6;
+
+-- 3) Trovo gli anni in cui ci sono state più di 10 assunzioni.
+SELECT YEAR(data_assunzione) AS Anno FROM Dipendente GROUP BY anno HAVING COUNT(anno)>10;
+
+-- 4) Trovo 
+SELECT b.nome_dip, a.nome, a.salario
+FROM Dipendente a
+INNER JOIN Dipartimento b 
+ON a.id_lavoro = b.id_manager
+WHERE a.id_manager=9
+AND DATEDIFF(NOW(), a.data_assunzione) > 5 * 365;
+
